@@ -91,9 +91,9 @@ spec:
                         maxLength: 30
                         type: string
                         x-kubernetes-validations:
-                          - message: '''alias'' is improperly formatted, must match the format ''family@version'''
+                          - message: "'alias' is improperly formatted, must match the format 'family@version'"
                             rule: self.matches('^[a-zA-Z0-9]*@.*$')
-                          - message: 'family is not supported, must be one of the following: ''al2'', ''al2023'', ''bottlerocket'', ''windows2019'', ''windows2022'''
+                          - message: "family is not supported, must be one of the following: 'al2', 'al2023', 'bottlerocket', 'windows2019', 'windows2022'"
                             rule: self.find('^[^@]+') in ['al2','al2023','bottlerocket','windows2019','windows2022']
                       id:
                         description: ID is the ami id in EC2
@@ -127,12 +127,12 @@ spec:
                   x-kubernetes-validations:
                     - message: expected at least one, got none, ['tags', 'id', 'name', 'alias']
                       rule: self.all(x, has(x.tags) || has(x.id) || has(x.name) || has(x.alias))
-                    - message: '''id'' is mutually exclusive, cannot be set with a combination of other fields in amiSelectorTerms'
-                      rule: '!self.exists(x, has(x.id) && (has(x.alias) || has(x.tags) || has(x.name) || has(x.owner)))'
-                    - message: '''alias'' is mutually exclusive, cannot be set with a combination of other fields in amiSelectorTerms'
-                      rule: '!self.exists(x, has(x.alias) && (has(x.id) || has(x.tags) || has(x.name) || has(x.owner)))'
-                    - message: '''alias'' is mutually exclusive, cannot be set with a combination of other amiSelectorTerms'
-                      rule: '!(self.exists(x, has(x.alias)) && self.size() != 1)'
+                    - message: "'id' is mutually exclusive, cannot be set with a combination of other fields in amiSelectorTerms"
+                      rule: "!self.exists(x, has(x.id) && (has(x.alias) || has(x.tags) || has(x.name) || has(x.owner)))"
+                    - message: "'alias' is mutually exclusive, cannot be set with a combination of other fields in amiSelectorTerms"
+                      rule: "!self.exists(x, has(x.alias) && (has(x.id) || has(x.tags) || has(x.name) || has(x.owner)))"
+                    - message: "'alias' is mutually exclusive, cannot be set with a combination of other amiSelectorTerms"
+                      rule: "!(self.exists(x, has(x.alias)) && self.size() != 1)"
                 associatePublicIPAddress:
                   description: AssociatePublicIPAddress controls if public IP addresses are assigned to instances that are launched with the nodeclass.
                   type: boolean
@@ -376,7 +376,7 @@ spec:
                   type: object
                   x-kubernetes-validations:
                     - message: imageGCHighThresholdPercent must be greater than imageGCLowThresholdPercent
-                      rule: 'has(self.imageGCHighThresholdPercent) && has(self.imageGCLowThresholdPercent) ?  self.imageGCHighThresholdPercent > self.imageGCLowThresholdPercent  : true'
+                      rule: "has(self.imageGCHighThresholdPercent) && has(self.imageGCLowThresholdPercent) ?  self.imageGCHighThresholdPercent > self.imageGCLowThresholdPercent  : true"
                     - message: evictionSoft OwnerKey does not have a matching evictionSoftGracePeriod
                       rule: has(self.evictionSoft) ? self.evictionSoft.all(e, (e in self.evictionSoftGracePeriod)):true
                     - message: evictionSoftGracePeriod OwnerKey does not have a matching evictionSoft
@@ -513,10 +513,10 @@ spec:
                       rule: self.size() != 0
                     - message: expected at least one, got none, ['tags', 'id', 'name']
                       rule: self.all(x, has(x.tags) || has(x.id) || has(x.name))
-                    - message: '''id'' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms'
-                      rule: '!self.all(x, has(x.id) && (has(x.tags) || has(x.name)))'
-                    - message: '''name'' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms'
-                      rule: '!self.all(x, has(x.name) && (has(x.tags) || has(x.id)))'
+                    - message: "'id' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms"
+                      rule: "!self.all(x, has(x.id) && (has(x.tags) || has(x.name)))"
+                    - message: "'name' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms"
+                      rule: "!self.all(x, has(x.name) && (has(x.tags) || has(x.id)))"
                 subnetSelectorTerms:
                   description: SubnetSelectorTerms is a list of or subnet selector terms. The terms are ORed.
                   items:
@@ -547,8 +547,8 @@ spec:
                       rule: self.size() != 0
                     - message: expected at least one, got none, ['tags', 'id']
                       rule: self.all(x, has(x.tags) || has(x.id))
-                    - message: '''id'' is mutually exclusive, cannot be set with a combination of other fields in subnetSelectorTerms'
-                      rule: '!self.all(x, has(x.id) && has(x.tags))'
+                    - message: "'id' is mutually exclusive, cannot be set with a combination of other fields in subnetSelectorTerms"
+                      rule: "!self.all(x, has(x.id) && has(x.tags))"
                 tags:
                   additionalProperties:
                     type: string
@@ -584,17 +584,17 @@ spec:
                 - message: changing from 'instanceProfile' to 'role' is not supported. You must delete and recreate this node class if you want to change this.
                   rule: (has(oldSelf.role) && has(self.role)) || (has(oldSelf.instanceProfile) && has(self.instanceProfile))
                 - message: if set, amiFamily must be 'AL2' or 'Custom' when using an AL2 alias
-                  rule: '!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find(''^[^@]+'') == ''al2'') ? (self.amiFamily == ''Custom'' || self.amiFamily == ''AL2'') : true)'
+                  rule: "!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find('^[^@]+') == 'al2') ? (self.amiFamily == 'Custom' || self.amiFamily == 'AL2') : true)"
                 - message: if set, amiFamily must be 'AL2023' or 'Custom' when using an AL2023 alias
-                  rule: '!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find(''^[^@]+'') == ''al2023'') ? (self.amiFamily == ''Custom'' || self.amiFamily == ''AL2023'') : true)'
+                  rule: "!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find('^[^@]+') == 'al2023') ? (self.amiFamily == 'Custom' || self.amiFamily == 'AL2023') : true)"
                 - message: if set, amiFamily must be 'Bottlerocket' or 'Custom' when using a Bottlerocket alias
-                  rule: '!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find(''^[^@]+'') == ''bottlerocket'') ? (self.amiFamily == ''Custom'' || self.amiFamily == ''Bottlerocket'') : true)'
+                  rule: "!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find('^[^@]+') == 'bottlerocket') ? (self.amiFamily == 'Custom' || self.amiFamily == 'Bottlerocket') : true)"
                 - message: if set, amiFamily must be 'Windows2019' or 'Custom' when using a Windows2019 alias
-                  rule: '!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find(''^[^@]+'') == ''windows2019'') ? (self.amiFamily == ''Custom'' || self.amiFamily == ''Windows2019'') : true)'
+                  rule: "!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find('^[^@]+') == 'windows2019') ? (self.amiFamily == 'Custom' || self.amiFamily == 'Windows2019') : true)"
                 - message: if set, amiFamily must be 'Windows2022' or 'Custom' when using a Windows2022 alias
-                  rule: '!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find(''^[^@]+'') == ''windows2022'') ? (self.amiFamily == ''Custom'' || self.amiFamily == ''Windows2022'') : true)'
+                  rule: "!has(self.amiFamily) || (self.amiSelectorTerms.exists(x, has(x.alias) && x.alias.find('^[^@]+') == 'windows2022') ? (self.amiFamily == 'Custom' || self.amiFamily == 'Windows2022') : true)"
                 - message: must specify amiFamily if amiSelectorTerms does not contain an alias
-                  rule: 'self.amiSelectorTerms.exists(x, has(x.alias)) ? true : has(self.amiFamily)'
+                  rule: "self.amiSelectorTerms.exists(x, has(x.alias)) ? true : has(self.amiFamily)"
             status:
               description: EC2NodeClassStatus contains the resolved state of the EC2NodeClass
               properties:
@@ -831,8 +831,8 @@ spec:
                   x-kubernetes-validations:
                     - message: expected at least one, got none, ['tags', 'id', 'name']
                       rule: self.all(x, has(x.tags) || has(x.id) || has(x.name))
-                    - message: '''id'' is mutually exclusive, cannot be set with a combination of other fields in amiSelectorTerms'
-                      rule: '!self.all(x, has(x.id) && (has(x.tags) || has(x.name) || has(x.owner)))'
+                    - message: "'id' is mutually exclusive, cannot be set with a combination of other fields in amiSelectorTerms"
+                      rule: "!self.all(x, has(x.id) && (has(x.tags) || has(x.name) || has(x.owner)))"
                 associatePublicIPAddress:
                   description: AssociatePublicIPAddress controls if public IP addresses are assigned to instances that are launched with the nodeclass.
                   type: boolean
@@ -1099,10 +1099,10 @@ spec:
                       rule: self.size() != 0
                     - message: expected at least one, got none, ['tags', 'id', 'name']
                       rule: self.all(x, has(x.tags) || has(x.id) || has(x.name))
-                    - message: '''id'' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms'
-                      rule: '!self.all(x, has(x.id) && (has(x.tags) || has(x.name)))'
-                    - message: '''name'' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms'
-                      rule: '!self.all(x, has(x.name) && (has(x.tags) || has(x.id)))'
+                    - message: "'id' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms"
+                      rule: "!self.all(x, has(x.id) && (has(x.tags) || has(x.name)))"
+                    - message: "'name' is mutually exclusive, cannot be set with a combination of other fields in securityGroupSelectorTerms"
+                      rule: "!self.all(x, has(x.name) && (has(x.tags) || has(x.id)))"
                 subnetSelectorTerms:
                   description: SubnetSelectorTerms is a list of or subnet selector terms. The terms are ORed.
                   items:
@@ -1133,8 +1133,8 @@ spec:
                       rule: self.size() != 0
                     - message: expected at least one, got none, ['tags', 'id']
                       rule: self.all(x, has(x.tags) || has(x.id))
-                    - message: '''id'' is mutually exclusive, cannot be set with a combination of other fields in subnetSelectorTerms'
-                      rule: '!self.all(x, has(x.id) && has(x.tags))'
+                    - message: "'id' is mutually exclusive, cannot be set with a combination of other fields in subnetSelectorTerms"
+                      rule: "!self.all(x, has(x.id) && has(x.tags))"
                 tags:
                   additionalProperties:
                     type: string
@@ -1166,7 +1166,7 @@ spec:
               type: object
               x-kubernetes-validations:
                 - message: amiSelectorTerms is required when amiFamily == 'Custom'
-                  rule: 'self.amiFamily == ''Custom'' ? self.amiSelectorTerms.size() != 0 : true'
+                  rule: "self.amiFamily == 'Custom' ? self.amiSelectorTerms.size() != 0 : true"
                 - message: must specify exactly one of ['role', 'instanceProfile']
                   rule: (has(self.role) && !has(self.instanceProfile)) || (!has(self.role) && has(self.instanceProfile))
                 - message: changing from 'instanceProfile' to 'role' is not supported. You must delete and recreate this node class if you want to change this.
@@ -1340,5 +1340,5 @@ spec:
       clientConfig:
         service:
           name: karpenter
-          namespace: kube-system
+          namespace: karpenter
           port: 8443
